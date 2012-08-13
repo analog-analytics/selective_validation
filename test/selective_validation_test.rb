@@ -1,4 +1,5 @@
 require_relative "../lib/selective_validation"
+require "active_model"
 require "shoulda-context"
 
 class SelectiveValidationTest < ActiveSupport::TestCase
@@ -9,12 +10,20 @@ class SelectiveValidationTest < ActiveSupport::TestCase
 
     allows_selective_validation
     validates :attr, presence: true
-    validates :attr_with_if, presence: true, if: Proc.new { |model| model.do_attr_with_if }
-    validates :attr_with_unless, presence: true, unless: Proc.new { |model| model.skip_attr_with_unless }
+    validates :attr_with_if_proc, presence: true, if: Proc.new { |model| model.do_attr_with_if }
+    validates :attr_with_if_symbol, presence: true, if: :do_attr_with_if
+    validates :attr_with_if_string, presence: true, if: "do_attr_with_if"
+    validates :attr_with_unless_proc, presence: true, unless: Proc.new { |model| model.skip_attr_with_unless }
+    validates :attr_with_unless_symbol, presence: true, unless: :skip_attr_with_unless
+    validates :attr_with_unless_string, presence: true, unless: "skip_attr_with_unless"
     attr_accessor :attr,
-                  :attr_with_if,
+                  :attr_with_if_proc,
+                  :attr_with_if_symbol,
+                  :attr_with_if_string,
                   :do_attr_with_if,
-                  :attr_with_unless,
+                  :attr_with_unless_proc,
+                  :attr_with_unless_symbol,
+                  :attr_with_unless_string,
                   :skip_attr_with_unless
   end
 
@@ -48,37 +57,43 @@ class SelectiveValidationTest < ActiveSupport::TestCase
   context "attribute with :if validation" do
     context "when :attrs_to_validate is empty or includes the attribute" do
       should "validate when :if condition is true" do
-        @model.attr_with_if = nil
-        @model.do_attr_with_if = true
-        @model.attrs_to_validate = []
-        assert @model.invalid?
-        assert_present @model.errors[:attr_with_if]
+        [:attr_with_if_proc, :attr_with_if_symbol, :attr_with_if_string].each do |attr|
+          @model.send(:"#{attr}=", nil)
+          @model.do_attr_with_if = true
+          @model.attrs_to_validate = []
+          assert @model.invalid?
+          assert_present @model.errors[attr]
 
-        @model.attrs_to_validate = [:attr_with_if]
-        assert @model.invalid?
-        assert_present @model.errors[:attr_with_if]
+          @model.attrs_to_validate = [attr]
+          assert @model.invalid?
+          assert_present @model.errors[attr]
 
-        @model.attr_with_if = "not nil"
-        assert @model.valid?
+          @model.send(:"#{attr}=", "not nil")
+          assert @model.valid?
+        end
       end
 
       should "not validate when :if condition is false" do
-        @model.attr_with_if = nil
-        @model.do_attr_with_if = false
-        @model.attrs_to_validate = []
-        @model.valid?
-        assert_blank @model.errors[:attr_with_if]
+        [:attr_with_if_proc, :attr_with_if_symbol, :attr_with_if_string].each do |attr|
+          @model.send(:"#{attr}=", nil)
+          @model.do_attr_with_if = false
+          @model.attrs_to_validate = []
+          @model.valid?
+          assert_blank @model.errors[attr]
 
-        @model.attrs_to_validate = [:attr_with_if]
-        assert @model.valid?
+          @model.attrs_to_validate = [attr]
+          assert @model.valid?
+        end
       end
     end
 
     context "when :attrs_to_validate does not include the attribute" do
       should "not validate" do
-        @model.attr_with_if = nil
-        @model.attrs_to_validate = [:another_attr]
-        assert @model.valid?
+        [:attr_with_if_proc, :attr_with_if_symbol, :attr_with_if_string].each do |attr|
+          @model.send(:"#{attr}=", nil)
+          @model.attrs_to_validate = [:another_attr]
+          assert @model.valid?
+        end
       end
     end
   end
@@ -86,38 +101,44 @@ class SelectiveValidationTest < ActiveSupport::TestCase
   context "attribute with :unless validation" do
     context "when :attrs_to_validate is empty or includes the attribute" do
       should "validate when :unless condition is false" do
-        @model.attr_with_unless = nil
-        @model.skip_attr_with_unless = false
-        @model.attrs_to_validate = []
-        assert @model.invalid?
-        assert_present @model.errors[:attr_with_unless]
+        [:attr_with_unless_proc, :attr_with_unless_symbol, :attr_with_unless_string].each do |attr|
+          @model.send(:"#{attr}=", nil)
+          @model.skip_attr_with_unless = false
+          @model.attrs_to_validate = []
+          assert @model.invalid?
+          assert_present @model.errors[attr]
 
-        @model.attrs_to_validate = [:attr_with_unless]
-        assert @model.invalid?
-        assert_present @model.errors[:attr_with_unless]
+          @model.attrs_to_validate = [attr]
+          assert @model.invalid?
+          assert_present @model.errors[attr]
 
-        @model.attr_with_unless = "not nil"
-        assert @model.valid?
+          @model.send(:"#{attr}=", "not nil")
+          assert @model.valid?
+        end
       end
 
       should "not validate when :unless condition is true" do
-        @model.attr_with_unless = nil
-        @model.skip_attr_with_unless = true
-        @model.attrs_to_validate = []
-        @model.valid?
-        assert_blank @model.errors[:attr_with_unless]
+        [:attr_with_unless_proc, :attr_with_unless_symbol, :attr_with_unless_string].each do |attr|
+          @model.send(:"#{attr}=", nil)
+          @model.skip_attr_with_unless = true
+          @model.attrs_to_validate = []
+          @model.valid?
+          assert_blank @model.errors[:attr_with_unless]
 
-        @model.attrs_to_validate = [:attr_with_unless]
-        assert @model.valid?
+          @model.attrs_to_validate = [:attr_with_unless]
+          assert @model.valid?
+        end
       end
     end
 
     context "when :attrs_to_validate does not include the attribute" do
       should "not validate" do
-        @model.attr_with_unless = nil
-        @model.skip_attr_with_unless = false
-        @model.attrs_to_validate = [:another_attr]
-        assert @model.valid?
+        [:attr_with_unless_proc, :attr_with_unless_symbol, :attr_with_unless_string].each do |attr|
+          @model.send(:"#{attr}=", nil)
+          @model.skip_attr_with_unless = false
+          @model.attrs_to_validate = [:another_attr]
+          assert @model.valid?
+        end
       end
     end
   end
