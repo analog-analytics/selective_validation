@@ -1,6 +1,8 @@
+require File.expand_path('../lib/selective_validation/version', __FILE__)
+
 Gem::Specification.new do |s|
   s.name = 'selective_validation'
-  s.version = '0.0.1'
+  s.version = SelectiveValidation::VERSION
   s.date = '2012-08-10'
   s.summary = "Validate only what you want, when you want."
   s.description = "For ActiveRecord models, allows dynamically restricting validation to specified attributes. " \

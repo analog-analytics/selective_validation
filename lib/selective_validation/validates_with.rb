@@ -1,13 +1,14 @@
 module SelectiveValidation
-  module Validates
-    def validates(*attributes)
-      options = attributes.extract_options!
+  module ValidatesWith
+    def validates_with(*args, &block)
+      options = args.extract_options!
       original_if = options.delete(:if)
+      attributes = options[:attributes].dup
       options[:if] = Proc.new { |model|
-        SelectiveValidation::Validates.do_selective_validation?(model, attributes) &&
-            SelectiveValidation::Validates.do_original_validation?(model, original_if)
+        SelectiveValidation::ValidatesWith.do_selective_validation?(model, attributes) &&
+            SelectiveValidation::ValidatesWith.do_original_validation?(model, original_if)
       }
-      super(*attributes, options)
+      super(*args, options, &block)
     end
 
     module_function

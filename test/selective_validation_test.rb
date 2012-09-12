@@ -16,6 +16,7 @@ class SelectiveValidationTest < ActiveSupport::TestCase
     validates :attr_with_unless_proc, presence: true, unless: Proc.new { |model| model.skip_attr_with_unless }
     validates :attr_with_unless_symbol, presence: true, unless: :skip_attr_with_unless
     validates :attr_with_unless_string, presence: true, unless: "skip_attr_with_unless"
+    validates_inclusion_of :attr_with_inclusion, :in => [1,2,3]
     attr_accessor :attr,
                   :attr_with_if_proc,
                   :attr_with_if_symbol,
@@ -24,7 +25,9 @@ class SelectiveValidationTest < ActiveSupport::TestCase
                   :attr_with_unless_proc,
                   :attr_with_unless_symbol,
                   :attr_with_unless_string,
-                  :skip_attr_with_unless
+                  :skip_attr_with_unless,
+                  :attr_with_inclusion,
+                  :do_attr_with_inclusion
   end
 
   def setup
@@ -140,6 +143,24 @@ class SelectiveValidationTest < ActiveSupport::TestCase
           assert @model.valid?
         end
       end
+    end
+  end
+
+  context "validates_inclusion_of" do
+    should "skip validation when :attrs_to_validate includes the attribute or is empty" do
+      @model.attr_with_inclusion = nil
+      @model.attrs_to_validate = []
+      assert @model.invalid?
+      assert_present @model.errors[:attr_with_inclusion]
+
+      @model.attrs_to_validate = [:attr_with_inclusion]
+      assert @model.invalid?
+      assert_present @model.errors[:attr_with_inclusion]
+
+      @model.attr_with_inclusion = 1
+      assert @model.valid?
+
+      @model.attrs_to_validate = nil
     end
   end
 end

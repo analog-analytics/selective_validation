@@ -1,2 +1,2 @@
 require_relative "selective_validation/base"
-require_relative "selective_validation/validates"
+require_relative "selective_validation/validates_with"
