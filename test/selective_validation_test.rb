@@ -46,6 +46,10 @@ class SelectiveValidationTest < ActiveSupport::TestCase
       assert @model.invalid?
       assert_present @model.errors[:attr]
 
+      @model.attrs_to_validate = ["attr"]
+      assert @model.invalid?
+      assert_present @model.errors[:attr]
+
       @model.attr = "not nil"
       assert @model.valid?
     end
@@ -55,6 +59,14 @@ class SelectiveValidationTest < ActiveSupport::TestCase
       @model.attrs_to_validate = [:another_attr]
       assert @model.valid?
     end
+  end
+
+  context "assignment to attrs_to_validate" do
+    
+    should "be protected" do
+      assert TestModel.protected_attributes.include?(:attrs_to_validate), "attrs_to_validate should be a protected attribute"
+    end
+
   end
 
   context "attribute with :if validation" do

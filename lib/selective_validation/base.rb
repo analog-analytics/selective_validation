@@ -8,6 +8,7 @@ module SelectiveValidation
       def allows_selective_validation
         attr_accessible :attrs_to_validate
         attr_accessor :attrs_to_validate
+        attr_protected :attrs_to_validate
         extend ValidatesWith
       end
     end
