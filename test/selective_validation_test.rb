@@ -61,14 +61,6 @@ class SelectiveValidationTest < ActiveSupport::TestCase
     end
   end
 
-  context "assignment to attrs_to_validate" do
-    
-    should "be protected" do
-      assert TestModel.protected_attributes.include?(:attrs_to_validate), "attrs_to_validate should be a protected attribute"
-    end
-
-  end
-
   context "attribute with :if validation" do
     context "when :attrs_to_validate is empty or includes the attribute" do
       should "validate when :if condition is true" do
