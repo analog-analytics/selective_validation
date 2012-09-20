@@ -14,7 +14,7 @@ module SelectiveValidation
     module_function
 
     def do_selective_validation?(model, attributes)
-      attrs_to_validate = model.attrs_to_validate.map(&:to_sym)
+      attrs_to_validate = Array(model.attrs_to_validate).map(&:to_sym)
       model.attrs_to_validate.blank? || (attributes & attrs_to_validate).present?
     end
 
