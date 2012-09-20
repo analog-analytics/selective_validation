@@ -3,7 +3,7 @@ module SelectiveValidation
     def validates_with(*args, &block)
       options = args.extract_options!
       original_if = options.delete(:if)
-      attributes = options[:attributes].dup
+      attributes = options[:attributes].dup.map(&:to_sym)
       options[:if] = Proc.new { |model|
         SelectiveValidation::ValidatesWith.do_selective_validation?(model, attributes) &&
             SelectiveValidation::ValidatesWith.do_original_validation?(model, original_if)
@@ -14,7 +14,8 @@ module SelectiveValidation
     module_function
 
     def do_selective_validation?(model, attributes)
-      model.attrs_to_validate.blank? || (attributes & model.attrs_to_validate).present?
+      attrs_to_validate = model.attrs_to_validate.map(&:to_sym)
+      model.attrs_to_validate.blank? || (attributes & attrs_to_validate).present?
     end
 
     def do_original_validation?(model, original_if)
